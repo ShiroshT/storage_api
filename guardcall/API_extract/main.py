@@ -1,17 +1,14 @@
 import os
 
 from storage.model_tab import comitetoDatabase
-from storage.model_tab import createDatabase
+from storage.model_tab import databasepost
 from apicall.guadcall import get_content
 
-sqlite_file = '/Users/siyanetissera/development/scratch_space/API_test/guardcall/storage/APIStorage.sqlite'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
 exportData = get_content()
 
-# createDatabase()
-comitetoDatabase(exportData)
+print 'about to create database'
+databasepost(exportData)
 
-# exportData['response']['results'][1]['fields']['body']
+#exportData['response']['results'][1]['fields']['body']

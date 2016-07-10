@@ -7,7 +7,7 @@ def get_content():
     api_url = 'http://content.guardianapis.com/search?q=europe'
     payload = {
         'api-key':              'e76429ae-ad89-497f-a228-abb82b62b9f4',
-        'page-size':            10,
+        'page-size':            50,
         'show-editors-picks':   'true',
         'show-elements':        'image',
         'show-fields':          'all'
