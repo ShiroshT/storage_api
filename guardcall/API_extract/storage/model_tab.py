@@ -15,11 +15,12 @@ def close(conn):
     conn.close()
 
 
-def createDatabase(c, conn):
+
+def createDatabase_master(c, conn):
     try:
         
-        conn.execute('''CREATE TABLE API_Store
-            (ID INT PRIMARY KEY     NOT NULL,
+        conn.execute('''CREATE TABLE news_store_master
+            (mnewsitemID INT PRIMARY KEY     NOT NULL,
             title           TEXT    NOT NULL,
             urllink          TEXT     NOT NULL,
             section         TEXT ,
@@ -27,6 +28,13 @@ def createDatabase(c, conn):
             link            TEXT NOT NULL,
             main            TEXT NOT NULL,
             body            TEXT NOT NULL);''')
+        
+        conn.execute('''  CREATE TABLE twitter_store(
+            trackid     INTEGER,
+            trackname   TEXT,
+            trackartist INTEGER,
+            resf REFERENCES news_store_master(mnewsitemID));''')
+        
         print "Table created successfully";
         
         conn.close()
@@ -41,7 +49,7 @@ def createDatabase(c, conn):
     return dbcreateflag
 
 
-def comitetoDatabase(c, conn, table_name, dataexport,dbcreateflag):
+def commit_master_news(c, conn, table_name, dataexport,dbcreateflag):
 
     les = len(dataexport['response']['results'])
     
@@ -49,11 +57,11 @@ def comitetoDatabase(c, conn, table_name, dataexport,dbcreateflag):
     
     maxid = 0
 
-#    if dbcreateflag ==1:
-#        maxid = 0
-#        p = c.execute('SELECT max(ID) FROM {}'.format(table_name))
-#        maxid = p.fetchone()[0]
-#        maxid = maxid +1
+    if dbcreateflag ==1:
+        maxid = 0
+        p = c.execute('SELECT max(mnewsitemID) FROM {}'.format(table_name))
+        maxid = p.fetchone()[0]
+        maxid = maxid +1
 
     for i in xrange(les):
         valf = i
@@ -65,14 +73,22 @@ def comitetoDatabase(c, conn, table_name, dataexport,dbcreateflag):
         main_a = dataexport['response']['results'][i]['fields']['main']
         body_a = dataexport['response']['results'][i]['fields']['body']
         
-        c.execute("insert into API_Store  values (?, ?,?,?,?,?,?,?)", (valf + maxid, title_a, url_a, section_a, webtit_a, link_a, main_a,body_a))
+        c.execute("insert into news_store_master values (?, ?,?,?,?,?,?,?)", (valf + maxid, title_a, url_a, section_a, webtit_a, link_a, main_a,body_a))
+
+
+def twitter_feed_search():
+    
+
+
+
+
 
 
 def databasepost(dataexport):
     sqlite_file = '/Users/siyanetissera/development/scratch_space/API_test/guardcall/API_extract/APIStorage.sqlite'
-    table_name = 'API_Store'
+    table_name = 'news_store_master'
     conn, c = connect(sqlite_file)
-    dbcreateflag = createDatabase(c, conn)
-    comitetoDatabase(c, conn, table_name, dataexport,dbcreateflag)
+    dbcreateflag = createDatabase_master(c, conn)
+    commit_master_news(c, conn, table_name, dataexport,dbcreateflag)
     close(conn)
 
