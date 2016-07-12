@@ -1,6 +1,4 @@
 import os
-
-from storage.model_tab import comitetoDatabase
 from storage.model_tab import databasepost
 from apicall.guadcall import get_content
 
