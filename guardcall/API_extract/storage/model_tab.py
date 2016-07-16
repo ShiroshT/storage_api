@@ -18,6 +18,26 @@ def close(conn):
     conn.close()
 
 
+
+''' Create databases - news_store_master, twitter_store '''
+def createDatabase_twitter(c, conn):
+    try:
+        conn.execute('''  CREATE TABLE twitter_store(
+            twitter_id    TEXT,
+            text   TEXT,
+            userid TEXT,
+            master_newsid REFERENCES news_store_master(mnewsitemID));''')
+        
+        print "Table created successfully";
+        
+
+    
+    except sqlite3.Error as er:
+        print 'database already availble:', er.message
+        dbcreateflag = 1
+
+
+
 ''' Create databases - news_store_master, twitter_store '''
 def createDatabase_master(c, conn):
     try:
@@ -61,11 +81,11 @@ def commit_master_news(c, conn, table_name, dataexport,dbcreateflag):
     
     maxid = 0
 
-    if dbcreateflag ==1:
-        maxid = 0
-        p = c.execute('SELECT max(mnewsitemID) FROM {}'.format(table_name))
-        maxid = p.fetchone()[0]
-        maxid = maxid +1
+#    if dbcreateflag ==1:
+#        maxid = 0
+#        p = c.execute('SELECT max(mnewsitemID) FROM {}'.format(table_name))
+#        maxid = p.fetchone()[0]
+#        maxid = maxid +1
 
     for i in xrange(les):
         valf = i
@@ -82,38 +102,45 @@ def commit_master_news(c, conn, table_name, dataexport,dbcreateflag):
 
 ''' Assign values to the database from the API - Twitter from the values got from the Guardian'''
 
-def twitter_feed_search(c, conn, table_name):
-    p = c.execute('SELECT title FROM {}'.format(table_name))
+
+def twitter_feed_search(c, conn, table_name_master,table_name_twitter):
+    p = c.execute('SELECT title FROM {}'.format(table_name_master))
     allresult = p.fetchall()
-    p_count = c.execute('SELECT count(mnewsitemID) FROM {}'.format(table_name))
+    p_count = c.execute('SELECT count(mnewsitemID) FROM {}'.format(table_name_master))
     p_count_i = p_count.fetchone()[0]
     
     for i in xrange(p_count_i):
-
+        
         title=allresult[i][0]
         titlelist=[]
         titlelist.append(title)
-
+        
         try:
             tso = TwitterSearchOrder()
             print 'titlelistquery',titlelist
             tso.set_keywords(titlelist)
             ts = TwitterSearch(
-                       consumer_key = twitter_consumer_key,
-                       consumer_secret = twitter_consumer_secret,
-                       access_token = twitter_access_token,
-                       access_token_secret = twitter_access_token_secret
-                       )
+                               consumer_key = twitter_consumer_key,
+                               consumer_secret = twitter_consumer_secret,
+                               access_token = twitter_access_token,
+                               access_token_secret = twitter_access_token_secret
+                               )
             sleep_for = 60  # sleep for 60 seconds
             last_amount_of_queries = 0 # used to detect when new queries are done
-        
-
+                               
+                               
             for tweet in ts.search_tweets_iterable(tso):
                 print( '@%s tweeted: %s' % ( tweet['user']['screen_name'], tweet['text'] ) )
                 current_amount_of_queries = ts.get_statistics()[0]
                 if not last_amount_of_queries == current_amount_of_queries:
-                       last_amount_of_queries = current_amount_of_queries
-                       time.sleep(sleep_for)
+                        last_amount_of_queries = current_amount_of_queries
+                        time.sleep(sleep_for)
+  
+  
+##write to database
+#            p = c.execute('SELECT max(mnewsitemID) FROM {}'.format(table_name))
+#            maxid = p.fetchone()[0]
+#            maxid = maxid +1
 
 
         except TwitterSearchException as e:
@@ -121,12 +148,16 @@ def twitter_feed_search(c, conn, table_name):
 
 
 
+
 def databasepost(dataexport):
     sqlite_file = '/Users/siyanetissera/development/scratch_space/API_test/guardcall/API_extract/APIStorage.sqlite'
-    table_name = 'news_store_master'
+    table_name_master = 'news_store_master'
+    table_name_twitter = 'twitter_store'
     conn, c = connect(sqlite_file)
     dbcreateflag = createDatabase_master(c, conn)
-    commit_master_news(c, conn, table_name, dataexport,dbcreateflag)
-    twitter_feed_search(c, conn, table_name)
+    createDatabase_twitter(c, conn)
+    
+    commit_master_news(c, conn, table_name_master, dataexport,dbcreateflag)
+    twitter_feed_search(c, conn, table_name_master,table_name_twitter)
     close(conn)
 
