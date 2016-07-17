@@ -31,10 +31,3 @@ def get_source():
 def examine_sources():
     data_sources= get_source()
     return data_sources
-
-
-
-
-
-
-# def get_content_fromall():
