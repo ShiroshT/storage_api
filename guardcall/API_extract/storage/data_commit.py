@@ -27,7 +27,7 @@ def commit_source_master(c, conn, data_sources):
         # close(c)
 
 
-''' Close database '''
+''' Commit full load master to the data base'''
 
 
 def commit_full_load_master(c, conn, data_sources):
@@ -53,14 +53,8 @@ def commit_full_load_master(c, conn, data_sources):
             print fload_title
 
         except:
-            print 'The write has not been completed for',i
+            print 'The write has not been completed for',i, 'the news story already available'
         conn.commit()
-
-
-
-
-''' Close database '''
-
 
 
 

@@ -9,8 +9,7 @@ from database_open_close import *
 ''' Create databases - this will store name of all the sources '''
 
 
-def create_database_fullloadstore(conn,c):
-
+def create_database_fullloadstore(conn, c):
     try:
         conn.execute('''CREATE TABLE news_loadfull_master
             (mnewsitemID INT PRIMARY KEY     NOT NULL,
@@ -29,9 +28,6 @@ def create_database_fullloadstore(conn,c):
         print 'database - news_loadfull_master- is already available'
 
 
-
-
-
 def createDatabase_sourcelist(c, conn):
     try:
         conn.execute('''  CREATE TABLE source_master(
@@ -47,6 +43,32 @@ def createDatabase_sourcelist(c, conn):
         print 'database source master already availble', er.message
         dbflag_tw = 1
 
+
+def database_open():
+    sqlite_file = '/Users/siyanetissera/development/scratch_space/API_test/guardcall/API_extract/APIStorage.sqlite'
+    table_name_master = 'news_store_master'
+    table_name_twitter = 'twitter_store'
+    table_name_source = 'source_master'
+    conn, c = connect(sqlite_file)
+    return conn, c, table_name_master, table_name_twitter, table_name_source
+
+
+''' create trigger for source master '''
+
+
+def db_create_source_master():
+    conn, c, table_name_master, table_name_twitter, table_name_source = database_open()
+    createDatabase_sourcelist(conn, c)
+    return conn, c
+
+
+''' create trigger for full load storage '''
+
+
+def db_create_full_load():
+    conn, c, table_name_master, table_name_twitter, table_name_source = database_open()
+    create_database_fullloadstore(conn, c)
+    return conn, c
 
 # ''' Create databases - news_store_master, twitter_store '''
 
@@ -104,33 +126,3 @@ def createDatabase_sourcelist(c, conn):
 #
 #     return dbflag_master
 #
-
-
-
-def database_open():
-    sqlite_file = '/Users/siyanetissera/development/scratch_space/API_test/guardcall/API_extract/APIStorage.sqlite'
-    table_name_master = 'news_store_master'
-    table_name_twitter = 'twitter_store'
-    table_name_source = 'source_master'
-    conn, c = connect(sqlite_file)
-    return conn, c, table_name_master, table_name_twitter, table_name_source
-
-
-''' create trigger for source master '''
-
-def db_create_source_master():
-    conn, c, table_name_master, table_name_twitter, table_name_source = database_open()
-    createDatabase_sourcelist(conn, c)
-    return conn, c
-
-
-
-''' create trigger for full load storage '''
-
-def db_create_full_load():
-    conn, c, table_name_master, table_name_twitter, table_name_source = database_open()
-    create_database_fullloadstore(conn,c)
-    return conn, c
-
-
-
